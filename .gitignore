@@ -203,3 +203,7 @@ cython_debug/
 
 ./checkpoints
 ./log.txt
+
+/checkpoints/
+/cache/
+/data/vsp_spatial_planning/img/

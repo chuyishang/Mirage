@@ -26,6 +26,7 @@ def get_args():
     parser.add_argument("--load_model_path", type=str, default='./checkpoints/model_stage1')
     
     parser.add_argument("--cache_dir", type=str, default='./cache')
+    parser.add_argument("--run_name", type=str, default='run_name')
 
     return parser.parse_args()
 
@@ -50,6 +51,9 @@ def load_jsonl_dataset(jsonl_path):
     return Dataset.from_list(data)
 
 def place_input_image(text, image_pad="<|vision_start|><|image_pad|><|vision_end|>", image_placeholder="<image>", sep_token="<|im_start|>assistant") -> str:
+    """
+    Replaces image_placeholder with image_pad in part 1 (the prompt) 
+    """
 
     assert sep_token in text
 
@@ -62,6 +66,9 @@ def place_input_image(text, image_pad="<|vision_start|><|image_pad|><|vision_end
     return t1 + sep_token + t2
 
 def place_output_image(text, image_pad="<|vision_start|><|image_pad|><|vision_end|>", latent_placeholder="<output_image>", sep_token="<|im_start|>assistant") -> str:
+    """
+    Replaces latent placeholder (e.g. <output_image>) with image_pad
+    """
 
     if latent_placeholder in text:
         text = text.replace(image_pad+'<think>', '<think>')
@@ -209,6 +216,14 @@ def process_batch(
     replacement_length: int,
     pad_token: int = 0
 ):
+    """
+    In stage 1: the arguments are:
+      start_token = <|latent_start|>
+      end_token = <|latent_end|>
+      replacement_token = <|latent_pad|>
+      replacement_length = latent_size
+      pad_token = <|endoftext|>
+    """
 
     batch_size, seq_len = input_ids.shape
 
@@ -220,6 +235,8 @@ def process_batch(
         real_tokens = input_ids[b][attention_mask[b] == 1]
 
         # Perform image-part replacement on this 1D sequence
+        # Replaces the content between <|latent_start|> and <|latent_end|> with args.num_latents <|latent_pad|> tokens
+        # ? I think currently, the input is <|latent_start|> <|image_pad|> <|latent_end|>, but I need to check this
         updated_seq = replace_subsequent_image_parts_1d(
             real_tokens,
             start_token=start_token,

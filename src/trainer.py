@@ -13,15 +13,18 @@ class CustomTrainerStage1(SFTTrainer):
         predict_embeddings = outputs.hidden_states
         image_out_mask = inputs["image_out_mask"]
 
+        # Get the output embeddings of the image tokens (through masking). We exclude the last token
         shift_image_mask = image_out_mask[:, -(predict_embeddings.shape[1] - 1) :].to(predict_embeddings.device)
         shift_predict_embeddings = predict_embeddings[..., :-1, :][shift_image_mask.to(predict_embeddings.device) != 0].contiguous()
 
+        # Get input embeddings of the image tokens (through masking). We exclude the first token
         input_embeddings = outputs.inputs_embeds
         gt_embeddings = input_embeddings[..., 1:, :][shift_image_mask.to(input_embeddings.device) != 0].contiguous()
         
         sim_loss = torch.nn.functional.cosine_similarity(gt_embeddings, shift_predict_embeddings).mean()
         sim_loss = 1 - sim_loss
 
+        # Weighted loss with 0.1 for the cross entropy loss and 1 for the image embedding loss
         loss = 0.1 * ce_loss + sim_loss
         return (loss, outputs) if return_outputs else loss
 

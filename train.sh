@@ -18,5 +18,5 @@ python src/main.py \
     --stage stage2 \
     --data_path ./data/sample.jsonl \
     --log_file ./log.txt \
-    --load_model_path ./checkpoints/model_stage1 \
-    --save_model_path ./checkpoints/model_stage2
+    --load_model_path ./checkpoints/model_stage1_v2 \
+    --save_model_path ./checkpoints/model_stage2_v2
