@@ -70,6 +70,9 @@ def evaluate(json_path, model_name, device, max_new_tokens, output_file):
         #     dtype=np.uint8
         # )
         # noise_img = Image.fromarray(noise_arr)
+        
+        #grey_patch = Image.new("RGB", (img1.width, img1.height), (128, 128, 128))
+        
         img2 = Image.open(resolve_img_path(ex["image_output"])).convert("RGB")
 
         # ground truth
@@ -87,8 +90,8 @@ def evaluate(json_path, model_name, device, max_new_tokens, output_file):
                                 + "Here is the map: "
                     },
                     {"type": "image", "image": img1},
-                    {"type": "text",  "text": "\nHere is my reasoning path: "},
-                    # {"type": "text",  "text": "\nHere is some reasoning space: "},
+                    {"type": "text",  "text": "\nHere is my reasoning path: "}, # Use this for testing correct helper, input as helper, wrong helper
+                    # {"type": "text",  "text": "\nHere is some reasoning space: "}, # Use this for testing grey image helper, random noise helper
                     {"type": "image", "image": img2},
                     {
                         "type": "text",

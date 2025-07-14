@@ -9,12 +9,12 @@ fi
 GPU_ID="$1"
 
 # ——— Hard-coded settings ———
-DATA="../data/vsp_spatial_planning/train_direct_shifted_helpers.jsonl" # to change sometimes
+DATA="../data/vsp_spatial_planning/val_split.jsonl" # to change sometimes
 MODEL="Qwen/Qwen2.5-VL-7B-Instruct"
 PROJECT="mirage_preliminaries"
-DATASET_NAME="vsp_spatial_planning"
-RUN_NAME="vsp_inference_wrong_helper" # to change
-SETUP="inference_wrong_helper" # to change
+DATASET_NAME="vsp_spatial_planning_200" # to change sometimes
+RUN_NAME="vsp_inference_with_helper" # to change
+SETUP="inference_with_helper" # to change
 MAX_TOK=1000
 OUTPUT_DIR="../test_outputs"
 OUTPUT_FILE="${OUTPUT_DIR}/${RUN_NAME}.jsonl"
