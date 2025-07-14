@@ -73,7 +73,7 @@ def collate_fn_stage1(examples):
 
     texts = [place_input_image(text) for text in texts]
     texts = [place_output_image(text) for text in texts]
-    texts = replace_visual_spectial_tokens(texts)
+    texts = replace_visual_spectial_tokens(texts) # replace image_pads with latent_starts
 
     image_inputs, _ = process_vision_info(examples)
 
@@ -103,6 +103,8 @@ def collate_fn_stage1(examples):
 
     pad_token_idx = processor.tokenizer("<|endoftext|>", return_tensors="pt")["input_ids"][0]
 
+    # This expands the input_ids to include the latent tokens. Size of the latent tokens is args.latent_size. 
+    # Returns the new input_ids and attention_mask of the expanded input_ids.
     new_input_ids, new_attention_mask = process_batch(batch["input_ids"], batch["attention_mask"], 
                                                       latent_start_idx, latent_end_idx, latent_token_idx, args.latent_size, pad_token_idx)
 
@@ -111,9 +113,12 @@ def collate_fn_stage1(examples):
 
     answer_start_token_pattern = processor.tokenizer("<|im_start|>assistant", return_tensors="pt")["input_ids"][0]
 
+    # This generates the targets for the model to predict. It masks everything before the assistant response, and also masks out all padding tokens.
     labels = generate_labels_after_multi_token_start(batch["input_ids"], answer_start_token_pattern, pad_token_idx, latent_token_idx)
     batch["labels"] = labels
 
+    # Masks out all <latent_pad> tokens after the first <latent_start> token. However, each one is represented as 1
+    # This is used for the out_mask
     image_out_mask = mask_image_output_tokens(batch["input_ids"], latent_start_idx, latent_token_idx)
     batch["image_out_mask"] = image_out_mask
 
@@ -190,7 +195,8 @@ training_args = SFTConfig(
     gradient_checkpointing=True,
     dataset_text_field="",
     dataset_kwargs={"skip_prepare_dataset": True},
-    report_to=[],
+    report_to=["wandb"],
+    run_name=args.run_name if hasattr(args, 'run_name') else None,
     logging_dir='./logs/',
     logging_strategy='steps',
 )

@@ -6,3 +6,4 @@ qwen_vl_utils
 mathruler
 pylatexenc
 Pillow
+wandb
