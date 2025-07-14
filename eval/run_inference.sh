@@ -9,13 +9,15 @@ fi
 GPU_ID="$1"
 
 # ——— Hard-coded settings ———
-MODEL="Qwen/Qwen2.5-VL-7B-Instruct"
-PROJECT="mirage_preliminaries"
-DATASET_NAME="blink_jigsaw"                       # to change
-RUN_NAME="jigsaw_inference_noise_filler2"           # to change
-SETUP="inference_noise_filler2"                     # to change
+# MODEL="Qwen/Qwen2.5-VL-7B-Instruct"
+MODEL="/home/shang/Mirage/checkpoints/stage2_split"
+PROJECT="vlm-reason"
+DATASET_NAME="/home/shang/Mirage/data/vsp_spatial_planning/val_split.jsonl"                       # to change
+DATA="/home/shang/Mirage/data/vsp_spatial_planning/val_split.jsonl"
+RUN_NAME="stage2_200_base"           # to change
+SETUP="stage2_200_base"                     # to change
 MAX_TOK=1000
-OUTPUT_DIR="./test_outputs"
+OUTPUT_DIR="/home/shang/Mirage/eval/outputs/stage2_200_base"
 OUTPUT_FILE="${OUTPUT_DIR}/${RUN_NAME}.jsonl"
 # ————————————————————————
 
@@ -31,7 +33,7 @@ echo "Output file:       $OUTPUT_FILE"
 echo
 
 # to change file if needed
-python blink_jigsaw_inference.py \
+python ./eval/vsp_inference.py \
   --model          "$MODEL" \
   --device         cuda \
   --max_new_tokens "$MAX_TOK" \
@@ -39,4 +41,5 @@ python blink_jigsaw_inference.py \
   --project        "$PROJECT" \
   --run_name       "$RUN_NAME" \
   --dataset_name   "$DATASET_NAME" \
+  --data           "$DATA" \
   --setup          "$SETUP"
