@@ -1,0 +1,59 @@
+2025-07-12 11:24:09 - INFO - ========================================
+2025-07-12 11:24:09 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=15, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub')
+2025-07-12 11:24:09 - INFO - ========================================
+2025-07-12 11:25:42 - INFO - ========================================
+2025-07-12 11:25:42 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=15, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub')
+2025-07-12 11:25:42 - INFO - ========================================
+2025-07-12 11:25:57 - INFO - ========================================
+2025-07-12 11:25:57 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=15, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub')
+2025-07-12 11:25:57 - INFO - ========================================
+2025-07-12 11:30:59 - INFO - ========================================
+2025-07-12 11:30:59 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=15, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub')
+2025-07-12 11:30:59 - INFO - ========================================
+2025-07-12 12:50:30 - INFO - ========================================
+2025-07-12 12:50:30 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=15, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub')
+2025-07-12 12:50:30 - INFO - ========================================
+2025-07-13 04:17:27 - INFO - ========================================
+2025-07-13 04:17:27 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=10, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub')
+2025-07-13 04:17:27 - INFO - ========================================
+2025-07-13 04:17:29 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 04:20:50 - INFO - ========================================
+2025-07-13 04:20:50 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=10, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub')
+2025-07-13 04:20:50 - INFO - ========================================
+2025-07-13 04:20:52 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 04:21:21 - INFO - ========================================
+2025-07-13 04:21:21 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=10, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub')
+2025-07-13 04:21:21 - INFO - ========================================
+2025-07-13 04:21:23 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 07:08:51 - INFO - ========================================
+2025-07-13 07:08:51 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=16, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1_v2', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub', run_name='run_name')
+2025-07-13 07:08:51 - INFO - ========================================
+2025-07-13 07:08:54 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 07:12:32 - INFO - ========================================
+2025-07-13 07:12:32 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=16, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage1_v2', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub', run_name='run_name')
+2025-07-13 07:12:32 - INFO - ========================================
+2025-07-13 07:12:34 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 10:11:18 - INFO - ========================================
+2025-07-13 10:11:18 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage2', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=16, data_path='./data/sample.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage2_v2', load_model_path='./checkpoints/model_stage1_v2', cache_dir='./cache', run_name='stage2-test')
+2025-07-13 10:11:18 - INFO - ========================================
+2025-07-13 10:11:23 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 10:14:17 - INFO - ========================================
+2025-07-13 10:14:17 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage2', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=16, data_path='./data/sample.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage2_v2', load_model_path='./checkpoints/model_stage1_v2', cache_dir='./cache', run_name='stage2-test')
+2025-07-13 10:14:17 - INFO - ========================================
+2025-07-13 10:14:19 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 11:19:23 - INFO - ========================================
+2025-07-13 11:19:23 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage2', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=16, data_path='./data/vsp_spatial_planning/train_direct.jsonl', log_file='./log.txt', save_model_path='./checkpoints/model_stage2_v2', load_model_path='./checkpoints/model_stage1_v2', cache_dir='./cache', run_name='stage2-test')
+2025-07-13 11:19:23 - INFO - ========================================
+2025-07-13 11:19:25 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 14:08:09 - INFO - ========================================
+2025-07-13 14:08:09 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=10, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_split.jsonl', log_file='./log.txt', save_model_path='./checkpoints/stage1_split', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub', run_name='run_name')
+2025-07-13 14:08:09 - INFO - ========================================
+2025-07-13 14:08:12 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 14:09:56 - INFO - ========================================
+2025-07-13 14:09:56 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage1', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=15, data_path='/home/shang/Mirage/data/vsp_spatial_planning/train_split.jsonl', log_file='./log.txt', save_model_path='./checkpoints/stage1_split', load_model_path='./checkpoints/model_stage1', cache_dir='/home/shang/.cache/huggingface/hub', run_name='stage1-split')
+2025-07-13 14:09:56 - INFO - ========================================
+2025-07-13 14:09:59 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+2025-07-13 15:50:10 - INFO - ========================================
+2025-07-13 15:50:10 - INFO - Namespace(model='Qwen/Qwen2.5-VL-7B-Instruct', stage='stage2', task='vsp-spatial-reasoning', latent_size=4, compress_strategy='average', epochs=15, data_path='./data/vsp_spatial_planning/train_split.jsonl', log_file='./log.txt', save_model_path='./checkpoints/stage2_split', load_model_path='./checkpoints/stage1_split', cache_dir='./cache', run_name='stage2-split')
+2025-07-13 15:50:10 - INFO - ========================================
+2025-07-13 15:50:12 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
