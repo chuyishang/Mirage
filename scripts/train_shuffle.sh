@@ -1,5 +1,5 @@
 export CUDA_DEVICE_ORDER="PCI_BUS_ID"
-export CUDA_VISIBLE_DEVICES="3"
+export CUDA_VISIBLE_DEVICES="5"
 
 export WANDB_PROJECT="vlm-reason"
 
@@ -12,11 +12,11 @@ export WANDB_PROJECT="vlm-reason"
     # --task vsp-spatial-reasoning \
     # --latent_size 4 \
     # --stage stage1 \
-    # --data_path /home/shang/Mirage/data/vsp_spatial_planning/train_split_gray.jsonl \
+    # --data_path /home/shang/Mirage/data/vsp_spatial_planning/train_split_shuffled.jsonl \
     # --log_file ./log.txt \
-    # --save_model_path ./checkpoints/stage1_split_gray_v2  \
+    # --save_model_path ./checkpoints/stage1_split_shuffled  \
     # --cache_dir ~/.cache/huggingface/hub \
-    # --run_name stage1-split-gray-v2
+    # --run_name stage1-split-shuffled
 
 
 
@@ -25,8 +25,8 @@ python src/main.py \
     --task vsp-spatial-reasoning \
     --latent_size 4 \
     --stage stage2 \
-    --data_path /home/shang/Mirage/data/vsp_spatial_planning/train_split_gray.jsonl \
+    --data_path /home/shang/Mirage/data/vsp_spatial_planning/train_split_shuffled.jsonl \
     --log_file ./log.txt \
-    --load_model_path ./checkpoints/stage1_split_gray \
-    --save_model_path ./checkpoints/stage2_split_gray_v2 \
-    --run_name stage2-split-gray-v2
+    --load_model_path ./checkpoints/stage1_split_shuffled \
+    --save_model_path /scratch/current/shang/checkpoints/stage2_split_shuffled \
+    --run_name stage2-split-shuffled-v3

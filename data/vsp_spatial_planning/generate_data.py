@@ -32,12 +32,15 @@ def main(args):
         for i,item in enumerate(data):
             item["image_output"] = f"/home/shang/Mirage/data/vsp_spatial_planning/img/gray.png"
             new_data.append(item)
+    elif args.type == "no_image":
+        for i,item in enumerate(data):
+            del item["image_output"]
+            new_data.append(item)
     else:
         raise ValueError(f"Invalid type: {args.type}")
 
     with open(f"./data/vsp_spatial_planning/{args.output_name}.jsonl", "w") as f:
         for item in new_data:
-            print(f"writing {item['image_output']}")
             f.write(json.dumps(item) + "\n")
 
 if __name__ == "__main__":

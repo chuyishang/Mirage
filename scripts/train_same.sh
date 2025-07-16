@@ -1,5 +1,5 @@
 export CUDA_DEVICE_ORDER="PCI_BUS_ID"
-export CUDA_VISIBLE_DEVICES="1"
+export CUDA_VISIBLE_DEVICES="4"
 
 export WANDB_PROJECT="vlm-reason"
 
@@ -12,11 +12,11 @@ export WANDB_PROJECT="vlm-reason"
     # --task vsp-spatial-reasoning \
     # --latent_size 4 \
     # --stage stage1 \
-    # --data_path /home/shang/Mirage/data/vsp_spatial_planning/train_split_noise.jsonl \
+    # --data_path /home/shang/Mirage/data/vsp_spatial_planning/train_split_same_image.jsonl \
     # --log_file ./log.txt \
-    # --save_model_path ./checkpoints/stage1_split_noise  \
+    # --save_model_path ./checkpoints/stage1_split_same_image  \
     # --cache_dir ~/.cache/huggingface/hub \
-    # --run_name stage1-split-noise
+    # --run_name stage1-split-same-image
 
 
 
@@ -25,8 +25,8 @@ python src/main.py \
     --task vsp-spatial-reasoning \
     --latent_size 4 \
     --stage stage2 \
-    --data_path /home/shang/Mirage/data/vsp_spatial_planning/train_split_noise.jsonl \
+    --data_path /home/shang/Mirage/data/vsp_spatial_planning/train_split_same_image.jsonl \
     --log_file ./log.txt \
-    --load_model_path ./checkpoints/stage1_split_noise \
-    --save_model_path ./checkpoints/stage2_split_noise \
-    --run_name stage2-split-noise
+    --load_model_path ./checkpoints/stage1_split_same_image \
+    --save_model_path /scratch/current/shang/checkpoints/stage2_split_same_image \
+    --run_name stage2-split-same-image-v3

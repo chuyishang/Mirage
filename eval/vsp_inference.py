@@ -48,7 +48,7 @@ def evaluate(json_path, model_name, device, max_new_tokens, output_file):
         processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct")
     else:
         processor = AutoProcessor.from_pretrained(model_name)
-    model     = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         model_name, torch_dtype="auto", device_map=None
     ).to(device)
     model.eval()

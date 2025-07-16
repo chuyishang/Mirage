@@ -1,8 +1,9 @@
 export CUDA_DEVICE_ORDER="PCI_BUS_ID"
-export CUDA_VISIBLE_DEVICES="0"
+export CUDA_VISIBLE_DEVICES="$1"
+# export CUDA_VISIBLE_DEVICES="0"
 
 export WANDB_PROJECT="vlm-reason"
-# export RUN_NAME="stage2-Iest"
+export RUN_NAME="stage2-test"
 
 
 python src/main.py \
@@ -13,5 +14,5 @@ python src/main.py \
     --data_path ./data/vsp_spatial_planning/train_direct.jsonl \
     --log_file ./log.txt \
     --load_model_path ./checkpoints/model_stage1_v2 \
-    --save_model_path ./checkpoints/model_stage2_v2 \
-    --run_name stage2-test
+    --save_model_path ./checkpoints/$RUN_NAME \
+    --run_name $RUN_NAME

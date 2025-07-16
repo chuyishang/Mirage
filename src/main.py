@@ -164,7 +164,7 @@ def collate_fn_stage2(examples):
     return batch
 
 
-preprocess_function = task_preporcess_config[args.task]
+preprocess_function = task_preprocess_config[args.task]
 train_dataset = load_jsonl_dataset(args.data_path)
 train_dataset = [preprocess_function(sample) for sample in train_dataset]
 
@@ -186,8 +186,8 @@ training_args = SFTConfig(
     weight_decay=0.01,
     logging_steps=20,
     save_strategy="steps",
-    save_steps=1000,
-    save_total_limit=1,
+    save_steps=500,
+    # save_total_limit=1,
     optim="adamw_torch_fused",
     bf16=True,
     push_to_hub=False,

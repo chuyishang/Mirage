@@ -52,7 +52,7 @@ def multiple_input_images_preprocess_function(sample):
 
     return conversations
 
-task_preporcess_config = {
+task_preprocess_config = {
     'vsp-spatial-reasoning': single_input_image_preprocess_function,
     'vsp-spatial-planning': single_input_image_preprocess_function,
     'blink-jigsaw': multiple_input_images_preprocess_function,
