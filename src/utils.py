@@ -55,15 +55,18 @@ def place_input_image(text, image_pad="<|vision_start|><|image_pad|><|vision_end
     Replaces image_placeholder with image_pad in part 1 (the prompt) 
     """
 
-    assert sep_token in text
+    if sep_token is not None:
+        assert sep_token in text
 
-    t1, t2 = text.split(sep_token)
+        t1, t2 = text.split(sep_token)
 
-    if image_placeholder in t1:
-        t1 = t1.replace(image_pad, '')
-        t1 = t1.replace(image_placeholder, image_pad)
+        if image_placeholder in t1:
+            t1 = t1.replace(image_pad, '')
+            t1 = t1.replace(image_placeholder, image_pad)
 
-    return t1 + sep_token + t2
+        return t1 + sep_token + t2
+    else:
+        return text.replace(image_pad, '').replace(image_placeholder, image_pad)
 
 def place_output_image(text, image_pad="<|vision_start|><|image_pad|><|vision_end|>", latent_placeholder="<output_image>", sep_token="<|im_start|>assistant") -> str:
     """
