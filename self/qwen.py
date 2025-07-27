@@ -30,6 +30,7 @@ from typing import Any, Callable, Optional, Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn import CrossEntropyLoss
 
 # /transformers/models/qwen2_5_vl/
 
@@ -44,7 +45,7 @@ from transformers.modeling_rope_utils import ROPE_INIT_FUNCTIONS, dynamic_rope_u
 from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
 from transformers.processing_utils import Unpack
 from transformers.utils import LossKwargs, auto_docstring, can_return_tuple, is_torchdynamo_compiling, logging
-from transformers.models.qwen2_5_vl import Qwen2_5_VLConfig, Qwen2_5_VLTextConfig, Qwen2_5_VLVisionConfig
+from transformers.models.qwen2_5_vl.configuration_qwen2_5_vl import Qwen2_5_VLConfig, Qwen2_5_VLTextConfig, Qwen2_5_VLVisionConfig
 
 
 logger = logging.get_logger(__name__)
@@ -529,6 +530,7 @@ class Qwen2_5_VLModelOutputWithPast(ModelOutput):
     hidden_states: Optional[tuple[torch.FloatTensor]] = None
     attentions: Optional[tuple[torch.FloatTensor]] = None
     rope_deltas: Optional[torch.LongTensor] = None
+    inputs_embeds: Optional[torch.FloatTensor] = None
 
 
 class Qwen2_5_VLRotaryEmbedding(nn.Module):
@@ -1271,22 +1273,53 @@ class Qwen2_5_VLModel(Qwen2_5_VLPreTrainedModel):
             
             # NOTE: modified
             if pixel_values_latent is not None:
-                image_embeds = self.get_image_features(pixel_values_latent, image_grid_thw_latent)
-                image_embeds = torch.cat(image_embeds, dim=0)
-                n_image_tokens = (input_ids == self.config.image_token_id).sum()
-                n_image_features = image_embeds.shape[0]
-                if not is_torchdynamo_compiling() and n_image_tokens != n_image_features:
-                    raise ValueError(
-                        f"Latent image features and image tokens do not match: tokens: {n_image_tokens}, features {n_image_features}"
-                    )
+                latent_image_embeds = self.get_image_features(pixel_values_latent, image_grid_thw_latent)
+                latent_image_embeds = torch.cat(image_embeds, dim=0)
+                n_latent_tokens = (input_ids == self.config.latent_token_id).sum()
+                n_latent_features = latent_image_embeds.shape[0]
 
-                mask = input_ids == self.config.image_token_id
-                mask_unsqueezed = mask.unsqueeze(-1)
-                mask_expanded = mask_unsqueezed.expand_as(inputs_embeds)
-                image_mask = mask_expanded.to(inputs_embeds.device)
+                if n_latent_tokens != n_latent_features:
+                    assert n_latent_tokens < n_latent_features
+                    batch_size = input_ids.shape[0]
+                    hidden_states = latent_image_embeds.shape[-1]
 
-                image_embeds = image_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
-                inputs_embeds = inputs_embeds.masked_scatter(image_mask, image_embeds) 
+                    assert n_image_tokens % batch_size == 0
+
+                    if self.model.config.compress_strategy == "average":
+                        latent_image_embeds = latent_image_embeds.view(batch_size, -1, hidden_states) # (B, S, D)
+
+                        assert n_latent_tokens // batch_size == self.model.config.latent_size # assert num latent tokens == latent size
+
+                        # if S is not divisible by latent_size, then truncate until divisible
+                        res = latent_image_embeds.shape[1] % self.model.config.latent_size
+                        if res > 0: latent_image_embeds = latent_image_embeds[:, :-res, :]
+
+                        assert latent_image_embeds.shape[1] % self.model.config.latent_size == 0 # assert S is divisible by latent size
+
+                        group_size = latent_image_embeds.shape[1] // self.model.config.latent_size # stores how many visual tokens is represented by each latent token
+
+                        # Split latent representations into latent_size number of groups
+                        chunks = torch.split(latent_image_embeds, group_size, dim=1)
+
+                        # Take the mean of each group
+                        chunk_means = [c.mean(dim=1, keepdim=True) for c in chunks]
+
+                        # Flatten the latent representations
+                        latent_image_embeds = torch.cat(chunk_means, dim=1).contiguous() # (B, latent_size, D)
+
+                # if not is_torchdynamo_compiling() and n_latent_tokens != n_latent_features:
+                    # raise ValueError(
+                        # f"Latent image features and latent image tokens do not match: tokens: {n_latent_tokens}, features {n_latent_features}"
+                    # )
+
+                # Latent masking
+                latent_mask = input_ids == self.config.latent_token_id
+                latent_mask_unsqueezed = latent_mask.unsqueeze(-1)
+                latent_mask_expanded = latent_mask_unsqueezed.expand_as(inputs_embeds)
+                latent_mask = latent_mask_expanded.to(inputs_embeds.device)
+
+                latent_image_embeds = latent_image_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
+                inputs_embeds = inputs_embeds.masked_scatter(latent_mask, latent_image_embeds) 
 
             if pixel_values_videos is not None:
                 video_embeds = self.get_video_features(pixel_values_videos, video_grid_thw)
@@ -1365,12 +1398,16 @@ class Qwen2_5_VLModel(Qwen2_5_VLPreTrainedModel):
             **kwargs,
         )
 
+        # hidden_states = outputs.hidden_states
+        # logits = self.lm_head(hidden_states)
+
         output = Qwen2_5_VLModelOutputWithPast(
             last_hidden_state=outputs.last_hidden_state,
             past_key_values=outputs.past_key_values,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
             rope_deltas=self.rope_deltas,
+            inputs_embeds=inputs_embeds,
         )
         return output if return_dict else output.to_tuple()
 
@@ -1403,6 +1440,7 @@ class Qwen2_5_VLCausalLMOutputWithPast(ModelOutput):
     hidden_states: Optional[tuple[torch.FloatTensor]] = None
     attentions: Optional[tuple[torch.FloatTensor]] = None
     rope_deltas: Optional[torch.LongTensor] = None
+    inputs_embeds: Optional[torch.FloatTensor] = None
 
 
 class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMixin):
@@ -1562,7 +1600,18 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMi
 
         loss = None
         if labels is not None:
-            loss = self.loss_function(logits=logits, labels=labels, vocab_size=self.config.vocab_size)
+            # Upcast to float if we need to compute the loss to avoid potential precision issues
+            logits = logits.float()
+            # Shift so that tokens < n predict n
+            shift_logits = logits[..., :-1, :].contiguous()
+            shift_labels = labels[..., 1:].contiguous()
+            # Flatten the tokens
+            loss_fct = CrossEntropyLoss()
+            shift_logits = shift_logits.view(-1, self.config.text_config.vocab_size)
+            shift_labels = shift_labels.view(-1)
+            # Enable model parallelism
+            shift_labels = shift_labels.to(shift_logits.device)
+            loss = loss_fct(shift_logits, shift_labels)
 
         return Qwen2_5_VLCausalLMOutputWithPast(
             loss=loss,
@@ -1571,6 +1620,7 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMi
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
             rope_deltas=outputs.rope_deltas,
+            inputs_embeds=outputs.inputs_embeds,
         )
 
     def prepare_inputs_for_generation(

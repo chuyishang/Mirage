@@ -1,6 +1,8 @@
 import torch
 import random
 import numpy as np
+import json
+from datasets import Dataset
 
 def seed_everything(seed: int = 42):
     """
@@ -16,14 +18,32 @@ def seed_everything(seed: int = 42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-def add_latent_tokens(text, k):
+# def add_latent_tokens(text, k):
+    # """Adds k fixed length latent tokens to the text"""
+    # sep_token = "<|im_start|>assistant"
+    # assert sep_token in text
+    # t1, t2 = text.split(sep_token)
+    # latent_tokens = ["<|latent_pad|>"] * k
+    # latent_tokens_str = " ".join(latent_tokens)
+    # return t1 + sep_token + latent_tokens_str + t2
+
+def add_latent_tokens(texts: list[str], k: int, mode: str = "answer_prefix") -> list[str]:
     """Adds k fixed length latent tokens to the text"""
-    sep_token = "<|im_start|>assistant"
-    assert sep_token in text
-    t1, t2 = text.split(sep_token)
-    latent_tokens = ["<|latent_pad|>"] * k
-    latent_tokens_str = " ".join(latent_tokens)
-    return t1 + sep_token + latent_tokens_str + t2
+    new_texts = []
+    for text in texts:
+        if mode == "question_suffix":
+            sep_token = "<|im_end|>\n<|im_start|>assistant\n"
+        elif mode == "answer_prefix":
+            sep_token = "<|im_start|>assistant"
+        else:
+            raise ValueError(f"Invalid mode: {mode}")
+        assert sep_token in text
+        t1, t2 = text.split(sep_token)
+        latent_tokens = ["<|latent_pad|>"] * k
+        latent_tokens_str = " ".join(latent_tokens)
+        new_texts.append(t1 + sep_token + latent_tokens_str + t2)
+    return new_texts
+
 
 def create_mask_after_start(
     input_ids: torch.Tensor,
@@ -66,3 +86,9 @@ def create_mask_after_start(
 
     return mask
     
+
+def load_jsonl_dataset(jsonl_path):
+    with open(jsonl_path, "r", encoding="utf-8") as f:
+        data = [json.loads(line) for line in f]
+        data = data[:]
+    return Dataset.from_list(data)

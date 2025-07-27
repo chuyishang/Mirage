@@ -8,14 +8,16 @@ import os
 
 from loguru import logger
 from datasets import load_dataset
-from transformers import Qwen2_5_VLForConditionalGeneration, Qwen2VLProcessor, AutoProcessor, Qwen2_5_VLConfig
+# from transformers import Qwen2_5_VLForConditionalGeneration, Qwen2VLProcessor, AutoProcessor, Qwen2_5_VLConfig
+from self.qwen import Qwen2_5_VLForConditionalGeneration
+from transformers import Qwen2VLProcessor, AutoProcessor, Qwen2_5_VLConfig
 from qwen_vl_utils import process_vision_info
 from trl import SFTConfig, SFTTrainer
 
 # from utils import *
-import utils
-from trainer import *
-from task import task_preprocess_config
+from self import utils
+from self.trainer import *
+from self.task import task_preprocess_config
 
 utils.seed_everything(42)
 
@@ -23,11 +25,15 @@ utils.seed_everything(42)
 def main(args):
     # os.environ['HF_HOME'] = args.cache_dir # ? not sure if this is good
 
-    train_dataset = load_dataset(args.data_path)
+    if args.data_path.endswith('.jsonl'):
+        train_dataset = utils.load_jsonl_dataset(args.data_path)
+    else:
+        train_dataset = load_dataset(args.data_path)
     preprocess_function = task_preprocess_config[args.task]
     train_dataset = [preprocess_function(sample) for sample in train_dataset]
 
     config = Qwen2_5_VLConfig.from_pretrained(args.model_id)
+    config.output_hidden_states = True
     processor = AutoProcessor.from_pretrained(args.model_id)
 
     model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
@@ -57,11 +63,11 @@ def main(args):
 
 
     ### COLLATE FN ###
-    def collate_fn(examples):
+    def collate_fn_stage1(examples):
         texts = [
             processor.apply_chat_template(example, tokenize=False) for example in examples
         ]
-        texts = utils.add_latent_tokens(texts, args.latent_size)
+        texts = utils.add_latent_tokens(texts, args.latent_size, mode="question_suffix")
         # TODO: add latent pad tokens to texts after or during applying the chat template
         image_inputs, _ = process_vision_info(examples)
 
@@ -84,7 +90,7 @@ def main(args):
     ### TRAINING ARGS ###
     training_args = SFTConfig(
         output_dir=args.output_dir,
-        num_train_epochs=args.num_train_epochs,
+        num_train_epochs=args.epochs,
         per_device_train_batch_size=args.per_device_train_batch_size,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         warmup_steps=10,
@@ -133,10 +139,14 @@ def main(args):
     ### TRAINER ###
     if args.stage in ['sft']:
         CustomTrainer = SFTTrainer
+        raise ValueError(f"Invalid stage: {args.stage}")
     elif args.stage in ['stage1']:
         CustomTrainer = CustomTrainerStage1
+        collate_fn = collate_fn_stage1
     elif args.stage in ['stage2']:
-        CustomTrainer = CustomTrainerStage2
+        # CustomTrainer = CustomTrainerStage2
+        # collate_fn = collate_fn_stage2
+        raise ValueError(f"Invalid stage: {args.stage}")
     # elif args.stage in ['stage3']:
         # CustomTrainer = CustomTrainerStage3
     else:
@@ -159,7 +169,7 @@ if __name__ == "__main__":
     p.add_argument("--data_path", type=str, default="/home/shang/Mirage/data/vsp_spatial_planning/train_split.jsonl")
     p.add_argument("--output_dir", type=str, default="/scratch/current/shang/checkpoints/sft_vsp_spatial_planning")
     p.add_argument("--task", type=str, default="vsp-spatial-reasoning")
-    p.add_argument("--num_train_epochs", type=int, default=10)
+    p.add_argument("--epochs", type=int, default=10)
     p.add_argument("--per_device_train_batch_size", type=int, default=8)
     # p.add_argument("--per_device_eval_batch_size", type=int, default=4)
     p.add_argument("--gradient_accumulation_steps", type=int, default=1)
@@ -169,4 +179,6 @@ if __name__ == "__main__":
     p.add_argument("--cache_dir", type=str, default="~/.cache/huggingface/hub")
     p.add_argument("--run_name", type=str, default="sft_vsp_7-17_lr2e-5")
     p.add_argument("--latent_size", type=int, default=10)
+    p.add_argument("--stage", type=str, default="stage1")
+    p.add_argument("--save_model_path", type=str, default="/scratch/current/shang/checkpoints/self_test")
     main(p.parse_args())
