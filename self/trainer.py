@@ -11,6 +11,7 @@ class CustomTrainerStage1(SFTTrainer):
         (ce_loss, outputs) = super().compute_loss(
             model, inputs, return_outputs=True, num_items_in_batch=num_items_in_batch
         )
+        breakpoint()
         predict_embeddings = outputs.hidden_states[-1]  # Get last layer hidden states
         image_out_mask = inputs["image_out_mask"] # mask for the latent tokens (B, S)
 

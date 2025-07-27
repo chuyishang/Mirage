@@ -1,0 +1,1 @@
+bash train.sh 1 gray_sv500_15ep_7-16 train_split_gray 15

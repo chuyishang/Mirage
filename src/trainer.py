@@ -1,5 +1,6 @@
 from trl import SFTTrainer, SFTConfig
 import torch
+from loguru import logger
 
 class CustomTrainerStage1(SFTTrainer):
         
@@ -10,17 +11,24 @@ class CustomTrainerStage1(SFTTrainer):
         (ce_loss, outputs) = super().compute_loss(
             model, inputs, return_outputs=True, num_items_in_batch=num_items_in_batch
         )
-        predict_embeddings = outputs.hidden_states
-        image_out_mask = inputs["image_out_mask"]
+        predict_embeddings = outputs.hidden_states # (B, S, D)
+        logger.critical(f"predict_embeddings: {predict_embeddings.shape}")
+        image_out_mask = inputs["image_out_mask"] # (B, S)
+        logger.warning(f"image_out_mask: {image_out_mask.shape}")
 
         # Get the output embeddings of the image tokens (through masking). We exclude the last token
         shift_image_mask = image_out_mask[:, -(predict_embeddings.shape[1] - 1) :].to(predict_embeddings.device)
+        print(shift_image_mask.shape)
         shift_predict_embeddings = predict_embeddings[..., :-1, :][shift_image_mask.to(predict_embeddings.device) != 0].contiguous()
+        print(shift_predict_embeddings.shape)
 
         # Get input embeddings of the image tokens (through masking). We exclude the first token
         input_embeddings = outputs.inputs_embeds
+        print(input_embeddings.shape)
         gt_embeddings = input_embeddings[..., 1:, :][shift_image_mask.to(input_embeddings.device) != 0].contiguous()
         
+        logger.success(f"gt_embeddings: {gt_embeddings.shape}")
+        logger.success(f"shift_predict_embeddings: {shift_predict_embeddings.shape}")
         sim_loss = torch.nn.functional.cosine_similarity(gt_embeddings, shift_predict_embeddings).mean()
         sim_loss = 1 - sim_loss
 

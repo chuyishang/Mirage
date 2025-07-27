@@ -413,6 +413,13 @@ def mask_image_output_tokens(
     return mask
 
 
+def load_jsonl_dataset(jsonl_path):
+    with open(jsonl_path, "r", encoding="utf-8") as f:
+        data = [json.loads(line) for line in f]
+        data = data[:]
+    return Dataset.from_list(data)
+
+
 if __name__=="__main__":
     
     pass

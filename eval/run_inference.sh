@@ -6,13 +6,13 @@ set -euo pipefail
   # exit 1
 # fi
 
-# GPU_ID="$1"
-# MODEL_NAME="$2"
-# RUN_NAME="$3"
+GPU_ID="$1"
+MODEL_NAME="$2"
+RUN_NAME="$3"
 
-GPU_ID="4,5"
-MODEL_NAME="sft_vsp_spatial_planning/checkpoint-1000"
-RUN_NAME="sft_vsp_spatial_planning_ckpt1000"
+# GPU_ID="4,5"
+# MODEL_NAME="sft_vsp_spatial_planning/checkpoint-1000"
+# RUN_NAME="sft_vsp_spatial_planning_ckpt1000"
 
 # ——— Hard-coded settings ———
 # MODEL="Qwen/Qwen2.5-VL-7B-Instruct"

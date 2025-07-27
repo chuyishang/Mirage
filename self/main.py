@@ -81,6 +81,7 @@ def main(args):
             labels[labels == id] = -100 # ignore special image tokens
         batch['labels'] = labels
 
+        breakpoint()
         image_out_mask = utils.create_mask_after_start(batch["input_ids"], latent_start_id, latent_pad_id)
         batch["image_out_mask"] = image_out_mask
 

@@ -51,7 +51,7 @@ def main(args):
         )  # Encode texts and images into tensors
 
 
-        answer_start_token_pattern = processor.tokenizer("<|im_start|>assistant\n", return_tensors="pt")["input_ids"][0] # i added the \n after this, is this correct?
+        answer_start_token_pattern = processor.tokenizer("<|im_start|>assistant", return_tensors="pt")["input_ids"][0] # i added the \n after this, is this correct?
         pad_token_idx = processor.tokenizer("<|endoftext|>", return_tensors="pt")["input_ids"][0]
         image_pad_idx = processor.tokenizer("<|image_pad|>", return_tensors="pt")["input_ids"][0]
         vision_start_idx = processor.tokenizer("<|vision_start|>", return_tensors="pt")["input_ids"][0]
@@ -131,13 +131,13 @@ if __name__ == "__main__":
     p.add_argument("--data_path", type=str, default="/home/shang/Mirage/data/vsp_spatial_planning/train_split.jsonl")
     p.add_argument("--output_dir", type=str, default="/scratch/current/shang/checkpoints/sft_vsp_spatial_planning")
     p.add_argument("--task", type=str, default="vsp-spatial-reasoning")
-    p.add_argument("--num_train_epochs", type=int, default=15)
+    p.add_argument("--num_train_epochs", type=int, default=10)
     p.add_argument("--per_device_train_batch_size", type=int, default=8)
     # p.add_argument("--per_device_eval_batch_size", type=int, default=4)
     p.add_argument("--gradient_accumulation_steps", type=int, default=1)
     p.add_argument("--gradient_checkpointing", type=bool, default=True)
-    p.add_argument("--learning_rate", type=float, default=1e-5)
+    p.add_argument("--learning_rate", type=float, default=2e-5)
     p.add_argument("--logging_steps", type=int, default=20)
     p.add_argument("--cache_dir", type=str, default="~/.cache/huggingface/hub")
-    p.add_argument("--run_name", type=str, default="sft_vsp_7-16")
+    p.add_argument("--run_name", type=str, default="sft_vsp_7-17_lr2e-5")
     main(p.parse_args())

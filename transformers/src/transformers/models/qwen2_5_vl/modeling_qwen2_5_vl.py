@@ -2059,12 +2059,13 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMi
                             f"Image features and image tokens do not match: tokens: {n_image_tokens}, features {n_image_features}"
                         )
 
-                mask = input_ids == self.config.image_token_id
+                mask = input_ids == self.config.image_token_id # Creates a (B, S) mask
                 
                 mask_unsqueezed = mask.unsqueeze(-1)
-                mask_expanded = mask_unsqueezed.expand_as(inputs_embeds)
+                mask_expanded = mask_unsqueezed.expand_as(inputs_embeds) # Expand to (B, S, D)
                 image_mask = mask_expanded.to(inputs_embeds.device)
 
+                # Insert image embeddings into the inputs_embeds
                 image_embeds = image_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
                 inputs_embeds = inputs_embeds.masked_scatter(image_mask, image_embeds)
 
@@ -2088,9 +2089,9 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMi
 
             if pixel_values_latent is not None:
                 pixel_values_latent = pixel_values_latent.type(self.visual.dtype)
-                latent_image_embeds = self.visual(pixel_values_latent, grid_thw=image_grid_thw_latent)
+                latent_image_embeds = self.visual(pixel_values_latent, grid_thw=image_grid_thw_latent) # pass latent image embeds through visual encoder 
 
-                n_image_tokens = (input_ids == self.config.latent_token_id).sum().item()
+                n_image_tokens = (input_ids == self.config.latent_token_id).sum().item() # NOTE: this actually counts the number of latent tokens, not image tokens
                 n_image_features = latent_image_embeds.shape[0]
 
                 if n_image_tokens != n_image_features:
@@ -2102,48 +2103,54 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMi
 
                     if self.model.config.compress_strategy == "average":
                         
-                        latent_image_embeds = latent_image_embeds.view(batch_size, -1, hidden_states)
+                        latent_image_embeds = latent_image_embeds.view(batch_size, -1, hidden_states) # (B, S, D)
 
-                        assert n_image_tokens // batch_size == self.model.config.latent_size
+                        assert n_image_tokens // batch_size == self.model.config.latent_size # assert num latent tokens == latent size
 
+                        # if S is not divisible by latent_size, then truncate until divisible
                         res = latent_image_embeds.shape[1] % self.model.config.latent_size
                         if res > 0: latent_image_embeds = latent_image_embeds[:, :-res, :]
 
                         assert latent_image_embeds.shape[1] % self.model.config.latent_size == 0
 
-                        group_size = latent_image_embeds.shape[1] // self.model.config.latent_size
+                        group_size = latent_image_embeds.shape[1] // self.model.config.latent_size # stores how many visual tokens is represented by each latent token
 
-                        chunks = torch.split(latent_image_embeds, group_size, dim=1)  # list of length `small_dim`
+                        # Split latent representations into latent_size number of groups
+                        chunks = torch.split(latent_image_embeds, group_size, dim=1)
 
+                        # Take the mean of each group
                         chunk_means = [c.mean(dim=1, keepdim=True) for c in chunks]
 
-                        latent_image_embeds = torch.cat(chunk_means, dim=1).contiguous()
+                        # Concatenate the means of each group
+                        latent_image_embeds = torch.cat(chunk_means, dim=1).contiguous() # (B, latent_size, D)
 
-                        latent_image_embeds = latent_image_embeds.view(-1, hidden_states)
+                        # Flatten the latent representations
+                        latent_image_embeds = latent_image_embeds.view(-1, hidden_states) # (B*latent_size, D)
 
                     else: 
-                        latent_image_embeds = latent_image_embeds.view(batch_size, -1, hidden_states)
-                        latent_image_embeds = latent_image_embeds[:, :n_image_tokens // batch_size, :].contiguous()
-                        latent_image_embeds = latent_image_embeds.view(-1, hidden_states)
+                        latent_image_embeds = latent_image_embeds.view(batch_size, -1, hidden_states) # (B, S, D)
+                        latent_image_embeds = latent_image_embeds[:, :n_image_tokens // batch_size, :].contiguous() # take the last # of latent tokens for each batch
+                        latent_image_embeds = latent_image_embeds.view(-1, hidden_states) # flattent to (B*latent_size, D)
 
-                    n_image_features = latent_image_embeds.shape[0]
+                    n_image_features = latent_image_embeds.shape[0] # (B*latent_size)
 
                     if n_image_tokens != n_image_features:
                         raise ValueError(
                             f"LATENT Image features and image tokens do not match: tokens: {n_image_tokens}, features {n_image_features}"
                         )
 
-                mask = input_ids == self.config.latent_token_id
+                mask = input_ids == self.config.latent_token_id # Creates a (B, S) mask
                 
-                mask_unsqueezed = mask.unsqueeze(-1)
-                mask_expanded = mask_unsqueezed.expand_as(inputs_embeds)
+                mask_unsqueezed = mask.unsqueeze(-1) # (B, S, 1)
+                mask_expanded = mask_unsqueezed.expand_as(inputs_embeds) # (B, S, D)
                 image_mask = mask_expanded.to(inputs_embeds.device)
 
                 latent_image_embeds = latent_image_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
-                inputs_embeds = inputs_embeds.masked_scatter(image_mask, latent_image_embeds)
+                inputs_embeds = inputs_embeds.masked_scatter(image_mask, latent_image_embeds) # (B, S, D) -> fill in the latent tokens with the latent image embeds
 
             
-            elif latent_hidden_states is not None and not generate_mode:
+            elif latent_hidden_states is not None and not generate_mode: # if we want to pass in latent hidden states manually
+                # the generate mode is because I think we pass in latent_hidden_states during generation?
 
                 latent_mask = input_ids == self.config.latent_token_id
                 latent_mask_unsqueezed = latent_mask.unsqueeze(-1)
@@ -2162,9 +2169,9 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMi
         all_hidden_states = []
         if self.config.stage == 'stage2' and not generate_mode:
             
-            latent_indices = (input_ids == self.config.latent_token_id).nonzero()
+            latent_indices = (input_ids == self.config.latent_token_id).nonzero() # list of nonzero indices
             latent_lists = [
-                [idx[1].item() for idx in latent_indices if idx[0] == i] for i in range(input_ids.shape[0])
+                [idx[1].item() for idx in latent_indices if idx[0] == i] for i in range(input_ids.shape[0]) # list of lists of latent indice positions
             ]
             max_n_latents = max([len(latent_list) for latent_list in latent_lists])
             
@@ -2173,7 +2180,7 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMi
                     f"Latent Image features and image tokens do not match: tokens: {max_n_latents}, features {self.config.latent_size}"
                 )
             
-            next_compute_range = (0, latent_indices[:, 1].min().item())
+            next_compute_range = (0, latent_indices[:, 1].min().item()) # find the # tokens before hitting first latent token in any batch element
             
             kv_cache = None
             
@@ -2258,7 +2265,7 @@ class Qwen2_5_VLForConditionalGeneration(Qwen2_5_VLPreTrainedModel, GenerationMi
                 all_hidden_states.append(hidden_states)
                 kv_cache = outputs.past_key_values
                 
-                hidden_states = hidden_states[:, -1:, :]
+                hidden_states = hidden_states[:, -1:, :] # take last hidden state
                 assert hidden_states.shape[1] == 1
                 
                 #replace the latent token with the output thought
